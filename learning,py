@@ -1,0 +1,65 @@
+import searcherAI as searcher
+
+# Funtion: saveWeightArr
+#  Save the weight to file
+#	Parameters:
+#		arr:array		the weight array
+#		label:string	the label
+def saveWeightArr( arr, label ):
+	fobj = open("weight/"+ label +".txt", 'w')
+	fobj.writelines( [ "%f\n" % ( x ) for x in arr  ] )
+	fobj.close()
+
+# Function: getWeightArr
+#	Get the weight from file
+#	Return:
+#		The weight array
+def getWeightArr():
+	arr = list()
+	count = 0
+	for a in range(1, 15):
+		for b in range(a+1,43):
+			if(b/a > 3):
+				break
+			if(b/a < 1.5):
+				continue
+			c = 83 - a - b
+	
+			if(c < 48):
+				break
+			count = count + 1
+			arr.append(((3*a/1000.0),(3*b/1000.0),(3*c/1000.0)))
+	return arr
+
+# Function: learning
+#	The main learning funcion
+#	Parameters:
+#		label:string	the label of image
+#		address:string	the address of trainning set
+#		num:int			the number of training image
+def learning( label, address, num ):
+	wArr = getWeightArr()
+	maxP_BA = 0
+	idx = -1
+	#for i in (85, 80, 70, 60, 50, 40, 30, 20, 10, 0):
+	#for i in xrange(len(wArr)):
+	for i in xrange(2):
+		# get the characteristics of cur image
+		cur = searcher.openImg( address+"0.jpg" );
+		curImgChar_12 = searcher.getCharacteristics( cur )
+		# training
+		imgs = searcher.searcherForTaining( "training/", "CBIRdataset/images/", wArr[i], curImgChar_12, num )
+		count = 0
+		for item in imgs:
+			if item['rate'] >= 0.85:
+				count += 1
+		print count
+		if count > maxP_BA:
+			maxP_BA = count
+			idx = i
+	print wArr[idx]
+	saveWeightArr( wArr[idx], label )
+
+if __name__ == '__main__':
+	learning( "0", "CBIRdataset/images/", 100 )
+	
